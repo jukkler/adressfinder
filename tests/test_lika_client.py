@@ -50,3 +50,20 @@ def test_fetch_empty_result(mock_httpx):
 
     result = fetch_flurstuecke("0,0,0.001,0.001")
     assert result == []
+
+
+def test_fetch_gebaeude(mock_httpx):
+    mock_httpx(make_response({
+        "type": "FeatureCollection",
+        "features": [{
+            "type": "Feature",
+            "properties": {"funktion": "Wohngebäude", "gebnutzbez": "Gebäude", "gmdschl": "05162004"},
+            "geometry": {"type": "MultiPolygon", "coordinates": []},
+        }],
+        "links": [],
+    }))
+    from grundstuecksfinder.lika_client import fetch_gebaeude
+
+    result = fetch_gebaeude("6.87,51.08,6.89,51.10")
+    assert len(result) == 1
+    assert result[0]["properties"]["funktion"] == "Wohngebäude"

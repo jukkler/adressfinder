@@ -1,18 +1,16 @@
 import httpx
 
-BASE_URL = "https://ogc-api.nrw.de/lika/v1/collections/flurstueck/items"
+_BASE = "https://ogc-api.nrw.de/lika/v1/collections"
 
 
-def fetch_flurstuecke(bbox: str, limit: int = 500) -> list[dict]:
-    """Fetch all Flurstücke within a bounding box, handling pagination."""
+def _fetch_collection(collection: str, bbox: str, limit: int = 500) -> list[dict]:
+    """Fetch all features from a LIKA collection, handling pagination."""
+    url = f"{_BASE}/{collection}/items"
     all_features: list[dict] = []
     offset = 0
 
     while True:
-        resp = httpx.get(
-            BASE_URL,
-            params={"f": "json", "bbox": bbox, "limit": limit, "offset": offset},
-        )
+        resp = httpx.get(url, params={"f": "json", "bbox": bbox, "limit": limit, "offset": offset})
         resp.raise_for_status()
         data = resp.json()
         features = data.get("features", [])
@@ -24,3 +22,13 @@ def fetch_flurstuecke(bbox: str, limit: int = 500) -> list[dict]:
         offset += limit
 
     return all_features
+
+
+def fetch_flurstuecke(bbox: str, limit: int = 500) -> list[dict]:
+    """Fetch all Flurstücke within a bounding box."""
+    return _fetch_collection("flurstueck", bbox, limit)
+
+
+def fetch_gebaeude(bbox: str, limit: int = 500) -> list[dict]:
+    """Fetch all Gebäude/Bauwerke within a bounding box."""
+    return _fetch_collection("gebaeude_bauwerk", bbox, limit)
