@@ -4,8 +4,8 @@ from folium.plugins import Draw
 
 
 def build_map(
-    center_lat: float = 51.5,
-    center_lon: float = 7.0,
+    center_lat: float = 51.2277,
+    center_lon: float = 6.7735,
     zoom: int = 13,
     matches: list[dict] | None = None,
     gebaeude: list[dict] | None = None,
@@ -89,5 +89,21 @@ def build_map(
                         fill=True,
                         fill_opacity=0.25,
                     ).add_to(m)
+
+    # Internal CSS: all containers fill iframe. JS: Leaflet invalidateSize.
+    map_var = m.get_name()
+    m.get_root().html.add_child(folium.Element(
+        "<style>"
+        "html,body{height:100%!important;margin:0!important;padding:0!important}"
+        "#root,#parent,.float-child{height:100%!important}"
+        "#map_div{height:100%!important;width:100%!important}"
+        ".folium-map,.leaflet-container{height:100%!important;width:100%!important}"
+        "</style>"
+        "<script>"
+        "function _refresh(){try{" + map_var + ".invalidateSize();}catch(e){}}"
+        "setTimeout(_refresh,300);setTimeout(_refresh,800);setTimeout(_refresh,1500);"
+        "setInterval(_refresh,3000);window.addEventListener('resize',_refresh);"
+        "</script>"
+    ))
 
     return m

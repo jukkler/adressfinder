@@ -21,14 +21,60 @@ from grundstuecksfinder.map_builder import build_map
 st.set_page_config(page_title="Grundstücksfinder NRW", layout="wide")
 
 # ---------------------------------------------------------------------------
+# Global CSS — fix map to bottom half of viewport
+# ---------------------------------------------------------------------------
+st.markdown(
+    """
+    <style>
+    /* Neutralize containing-block-creating properties on ALL ancestors
+       so position:fixed on the iframe references the viewport */
+    div[data-testid="stMainBlockContainer"]:has(iframe[title="streamlit_folium.st_folium"]),
+    div[data-testid="stVerticalBlock"]:has(iframe[title="streamlit_folium.st_folium"]),
+    div[data-testid="stElementContainer"]:has(iframe[title="streamlit_folium.st_folium"]),
+    div[data-testid="stCustomComponentV1"]:has(iframe[title="streamlit_folium.st_folium"]) {
+        transform: none !important;
+        contain: none !important;
+        will-change: auto !important;
+        filter: none !important;
+        perspective: none !important;
+        container-type: normal !important;
+    }
+    /* Fix iframe directly to bottom half of viewport */
+    iframe[title="streamlit_folium.st_folium"] {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: auto !important;
+        right: 0 !important;
+        width: calc(100vw - 245px) !important;
+        height: 50vh !important;
+        z-index: 999 !important;
+        border: none !important;
+    }
+    /* When sidebar is collapsed */
+    [data-testid="stSidebar"][aria-expanded="false"] ~ [data-testid="stMain"]
+    iframe[title="streamlit_folium.st_folium"] {
+        width: 100vw !important;
+    }
+    footer, [data-testid="stFooter"] {
+        display: none !important;
+    }
+    .main .block-container {
+        padding-bottom: 52vh !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# ---------------------------------------------------------------------------
 # Session-state defaults
 # ---------------------------------------------------------------------------
 _STATE_DEFAULTS: dict = {
     "matches": [],
     "gebaeude": [],
     "bbox": None,
-    "center_lat": 51.5,
-    "center_lon": 7.0,
+    "center_lat": 51.2277,
+    "center_lon": 6.7735,
     "search_summary": "",
 }
 
@@ -281,6 +327,8 @@ m = build_map(
 
 map_data = st_folium(
     m,
+    center=[st.session_state["center_lat"], st.session_state["center_lon"]],
+    zoom=13,
     width=None,
     height=500,
     returned_objects=["last_clicked", "last_active_drawing"],
