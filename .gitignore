@@ -4,3 +4,4 @@ dist/
 .venv/
 *.html
 *.csv
+.superpowers/

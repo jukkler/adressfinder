@@ -7,6 +7,8 @@ dependencies = [
     "click>=8.0",
     "folium>=0.15",
     "tabulate>=0.9",
+    "streamlit>=1.35",
+    "streamlit-folium>=0.22",
 ]
 
 [project.optional-dependencies]
