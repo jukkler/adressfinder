@@ -60,9 +60,18 @@ def build_map(
             if geom["type"] == "MultiPolygon":
                 for polygon in geom["coordinates"]:
                     coords = [[lat, lon] for lon, lat in polygon[0]]
+                    clat = sum(c[0] for c in coords) / len(coords)
+                    clon = sum(c[1] for c in coords) / len(coords)
+                    gmaps = f"https://www.google.com/maps?q={clat},{clon}"
+                    sign = "+" if match["abweichung"] > 0 else ""
+                    popup_html = (
+                        f"<b>{match['adresse']}</b><br>"
+                        f"{match['flaeche']:.0f} m² ({sign}{match['abweichung']}%)<br>"
+                        f'<a href="{gmaps}" target="_blank">Google Maps</a>'
+                    )
                     folium.Polygon(
                         locations=coords,
-                        popup=f"<b>{match['adresse']}</b><br>{match['flaeche']:.0f} m² ({'+' if match['abweichung'] > 0 else ''}{match['abweichung']}%)",
+                        popup=popup_html,
                         color=color,
                         weight=weight,
                         fill=True,
